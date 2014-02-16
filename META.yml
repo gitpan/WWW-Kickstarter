@@ -1,0 +1,78 @@
+---
+abstract: 'Retrieve information from Kickstarter'
+author:
+  - 'Eric Brine <ikegami@adaelis.com>'
+build_requires:
+  FindBin: 0
+  Test::More: 0
+configure_requires:
+  Module::Build: 0.3614
+  Software::License::CC0_1_0: 0
+dynamic_config: 1
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.120351'
+license: unrestricted
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: WWW-Kickstarter
+provides:
+  WWW::Kickstarter:
+    file: lib/WWW/Kickstarter.pm
+    version: v1.0.0
+  WWW::Kickstarter::Data:
+    file: lib/WWW/Kickstarter/Data.pm
+    version: 0
+  WWW::Kickstarter::Data::Categories:
+    file: lib/WWW/Kickstarter/Data/Categories.pm
+    version: 0
+  WWW::Kickstarter::Data::Category:
+    file: lib/WWW/Kickstarter/Data/Category.pm
+    version: 0
+  WWW::Kickstarter::Data::NotificationPref:
+    file: lib/WWW/Kickstarter/Data/NotificationPref.pm
+    version: 0
+  WWW::Kickstarter::Data::Project:
+    file: lib/WWW/Kickstarter/Data/Project.pm
+    version: 0
+  WWW::Kickstarter::Data::User:
+    file: lib/WWW/Kickstarter/Data/User.pm
+    version: 0
+  WWW::Kickstarter::Data::User::Myself:
+    file: lib/WWW/Kickstarter/Data/User/Myself.pm
+    version: 0
+  WWW::Kickstarter::Error:
+    file: lib/WWW/Kickstarter/Error.pm
+    version: 0
+  WWW::Kickstarter::HttpClient:
+    file: lib/WWW/Kickstarter/HttpClient.pm
+    version: 0
+  WWW::Kickstarter::HttpClient::Lwp:
+    file: lib/WWW/Kickstarter/HttpClient/Lwp.pm
+    version: 0
+  WWW::Kickstarter::Iterator:
+    file: lib/WWW/Kickstarter/Iterator.pm
+    version: 0
+  WWW::Kickstarter::JsonParser:
+    file: lib/WWW/Kickstarter/JsonParser.pm
+    version: 0
+  WWW::Kickstarter::JsonParser::JsonXs:
+    file: lib/WWW/Kickstarter/JsonParser/JsonXs.pm
+    version: 0
+requires:
+  Carp: 0
+  HTTP::Headers: 0
+  HTTP::Request::Common: 0
+  JSON::XS: 0
+  LWP::Protocol::https: 0
+  LWP::UserAgent: 0
+  Time::HiRes: 0
+  URI: 0
+  URI::Escape: 0
+  URI::QueryParam: 0
+  autovivification: 0
+  overload: 0
+  version: 0
+resources:
+  license: http://creativecommons.org/publicdomain/zero/1.0/
+  repository: http://github.com/ikegami/perl-WWW-Kickstarter
+version: v1.0.0
