@@ -47,7 +47,7 @@
    "provides" : {
       "WWW::Kickstarter" : {
          "file" : "lib/WWW/Kickstarter.pm",
-         "version" : "v1.0.0"
+         "version" : "v1.2.0"
       },
       "WWW::Kickstarter::Data" : {
          "file" : "lib/WWW/Kickstarter/Data.pm",
@@ -111,5 +111,5 @@
          "url" : "http://github.com/ikegami/perl-WWW-Kickstarter"
       }
    },
-   "version" : "v1.0.0"
+   "version" : "v1.2.0"
 }
