@@ -38,13 +38,14 @@ sub deadline      { $_[0]{deadline} }       # When project ends
 sub backers_count { $_[0]{backers_count} }
 sub goal          { $_[0]{goal} }
 sub pledged       { $_[0]{pledged} }
+sub currency      { $_[0]{currency} }
 sub creator       { $_[0]{creator} }
 
 sub category_id   { $_[0]{category}{id} }
 sub category_name { $_[0]{category}{name} }
 
 sub progress      { $_[0]{pledged} / $_[0]{goal} }
-sub progress_pct  { sprintf "%.0f", $_[0]{pledged} / $_[0]{goal} * 100 }
+sub progress_pct  { int( $_[0]{pledged} / $_[0]{goal} * 100 ) }
 
 
 sub refetch { my $self = shift;  return $self->ks->project($self->id, @_); }
@@ -138,14 +139,21 @@ Returns the number of backers the project has.
 
    my $project_goal = $project->goal;
 
-Returns the amount of USD the project is attempting to raise.
+Returns the amount the project is attempting to raise. The amount is in the currency returned by L<C<currency>|/currency>.
 
 
 =head2 pledged
 
    my $project_pledged = $project->pledged;
 
-Returns the amount of USD that has been pledged to the project.
+Returns the amount that has been pledged to the project. The amount is in the currency returned by L<C<currency>|/currency>.
+
+
+=head2 currency
+
+   my $currency = $project->currency;
+
+Returns the currency used for this project's goal, its pledges and its rewards.
 
 
 =head2 creator
