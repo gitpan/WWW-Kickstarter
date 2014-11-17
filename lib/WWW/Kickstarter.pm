@@ -5,7 +5,7 @@ use strict;
 use warnings;
 no autovivification;
 
-use version; our $VERSION = qv('v1.4.0');
+use version; our $VERSION = qv('v1.6.0');
 
 
 use Time::HiRes                              qw( );
@@ -14,8 +14,10 @@ use URI::Escape                              qw( uri_escape_utf8 );
 use URI::QueryParam                          qw( );
 use WWW::Kickstarter::Data::Categories       qw( );
 use WWW::Kickstarter::Data::Category         qw( );
+use WWW::Kickstarter::Data::Location         qw( );
 use WWW::Kickstarter::Data::NotificationPref qw( );
 use WWW::Kickstarter::Data::Project          qw( );
+use WWW::Kickstarter::Data::Reward           qw( );
 use WWW::Kickstarter::Data::User             qw( );
 use WWW::Kickstarter::Data::User::Myself     qw( );
 use WWW::Kickstarter::Error                  qw( my_croak );
@@ -333,7 +335,7 @@ sub _projects {
    my %form;
    for my $field_name (
       'category',           # Category's "id", "slug" or "name".
-      'location',           # Location as a "Where on Earth Identifier" ("WOEID")
+      'location',           # Location's "id" (which is a "Where on Earth Identifier").
       'sort',               # 'magic' (default), 'end_date', 'newest', 'launch_date', 'popularity', 'most_funded'
       'q',                  # Search terms
       'backed_by_self',     # Boolean
@@ -466,6 +468,13 @@ sub project {
    return $self->_call_api('projects/'.uri_escape_utf8($project_id), [ 'single', recognize_404=>1 ], 'Project', @_);
 }
 
+sub project_rewards {
+   my_croak(400, "Incorrect usage") if @_ < 2;
+   my $self       = shift;
+   my $project_id = shift;  # "id" or "slug".
+   return $self->_call_api('projects/'.uri_escape_utf8($project_id).'/rewards', [ 'list', recognize_404=>1 ], 'Reward', @_);
+}
+
 sub projects {
    my $self = shift;
    return $self->_projects({}, @_);
@@ -491,6 +500,19 @@ sub popular_projects {
    return $self->_projects({ sort => 'popularity' }, @_);
 }
 
+sub location {
+   my_croak(400, "Incorrect usage") if @_ < 2;
+   my $self        = shift;
+   my $location_id = shift;  # From "id" field. Cannot be "slug".
+   return $self->_call_api('locations/'.uri_escape_utf8($location_id), [ 'single', recognize_404=>1 ], 'Location', @_);
+}
+
+sub projects_near_location {
+   my $self        = shift;
+   my $location_id = shift;  # From "id" field. Cannot be "slug".
+   return $self->_projects({ location => $location_id }, @_);
+}
+
 sub category {
    my_croak(400, "Incorrect usage") if @_ < 2;
    my $self        = shift;
@@ -508,14 +530,14 @@ sub category_projects {
    my_croak(400, "Incorrect usage") if @_ < 2;
    my $self        = shift;
    my $category_id = shift;  # "id", "slug" or "name".
-   return $self->_projects({ category_id => $category_id }, @_);
+   return $self->_projects({ category => $category_id }, @_);
 }
 
 sub category_projects_recommended {
    my_croak(400, "Incorrect usage") if @_ < 2;
    my $self        = shift;
    my $category_id = shift;  # "id", "slug" or "name".
-   return $self->_projects({ category_id => $category_id, staff_picks => 1 }, @_);
+   return $self->_projects({ category => $category_id, staff_picks => 1 }, @_);
 }
 
 
@@ -534,7 +556,7 @@ WWW::Kickstarter - Retrieve information from Kickstarter
 
 =head1 VERSION
 
-Version 1.4.0
+Version 1.6.0
 
 
 =head1 SYNOPSIS
@@ -712,6 +734,17 @@ Note that the argument must be the user's numerical id (as returned by L<C<< $us
    my $project = $ks->project($project_slug);
 
 Fetches and returns the specified project as a L<WWW::Kickstarter::Data::Project> object.
+
+The argument may be the project's numerical id (as returned by L<C<< $project->id >>|WWW::Kickstarter::Data::Project/id>) or
+its "slug" (as returned by L<C<< $project->slug >>|WWW::Kickstarter::Data::Project/slug>).
+
+
+=head2 project_rewards
+
+   my @rewards = $ks->project_rewards($project_id);
+   my @rewards = $ks->project_rewards($project_slug);
+
+Fetches and returns the rewards of the specified project as L<WWW::Kickstarter::Data::Reward> objects.
 
 The argument may be the project's numerical id (as returned by L<C<< $project->id >>|WWW::Kickstarter::Data::Project/id>) or
 its "slug" (as returned by L<C<< $project->slug >>|WWW::Kickstarter::Data::Project/slug>).
@@ -937,6 +970,26 @@ Returns an L<iterator|WWW::Kickstarter::Iterator> that fetches and returns popul
 It accepts the same options as L<C<projects>|/projects>.
 
 
+=head2 location
+
+   my $location = $ks->location($location_id);
+
+Fetches and returns the specified location as a L<WWW::Kickstarter::Data::Location> object.
+
+Note that the argument must be the location's numerical id (as returned by L<C<< $location->id >>|WWW::Kickstarter::Data::Location/id>).
+
+
+=head2 projects_near_location
+
+   my $projects_iter = $ks->projects_near_location($location_id, %opts);
+
+Returns an L<iterator|WWW::Kickstarter::Iterator> that fetches and returns the projects near the specified location as L<WWW::Kickstarter::Data::Project> objects.
+
+The argument must be the location's id (as returned by L<C<< $location->id >>|WWW::Kickstarter::Data::Location/id>).
+
+It accepts the same options as L<C<projects>|/projects>.
+
+
 =head2 category
 
    my $category = $ks->category($category_id);
@@ -1011,9 +1064,7 @@ The following issues are known:
 
 =over
 
-=item * A lot of the data returned by the API has not been made available through accessors.
-
-=item * Some of the data that has not been available through accessors should be converted to objects (e.g. locations).
+=item * A lot of the data returned by the API has not been made available through accessors (though the data is available by accessing the object hash directly).
 
 =item * Some API calls may not have been made available.
 

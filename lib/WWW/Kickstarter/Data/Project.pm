@@ -22,7 +22,15 @@ sub _new {
    }
 
    my $self = $class->SUPER::_new($ks, $data);
-   $self->{creator} = WWW::Kickstarter::Data::User->_new($ks, $self->{creator}) if exists($self->{creator});
+   $self->{creator } = WWW::Kickstarter::Data::User    ->_new($ks, $self->{creator }) if exists($self->{creator });
+   $self->{category} = WWW::Kickstarter::Data::Category->_new($ks, $self->{category}) if exists($self->{category});
+   $self->{location} = WWW::Kickstarter::Data::Location->_new($ks, $self->{location}) if exists($self->{location});
+
+   if (exists($self->{rewards})) {
+      for my $reward (@{ $self->{rewards} }) {
+         $reward = WWW::Kickstarter::Data::Reward->_new($ks, $reward);
+      }
+   }
 
    return $self;
 }
@@ -36,19 +44,26 @@ sub blurb         { $_[0]{blurb} }
 sub launched_at   { $_[0]{launched_at} }    # When project started
 sub deadline      { $_[0]{deadline} }       # When project ends
 sub backers_count { $_[0]{backers_count} }
+sub currency      { $_[0]{currency} }
 sub goal          { $_[0]{goal} }
 sub pledged       { $_[0]{pledged} }
-sub currency      { $_[0]{currency} }
+sub progress      { $_[0]{pledged} / $_[0]{goal} }
+sub progress_pct  { int( $_[0]{pledged} / $_[0]{goal} * 100 ) }
 sub creator       { $_[0]{creator} }
-
+sub location      { $_[0]{location} }
+sub category      { $_[0]{category} }
 sub category_id   { $_[0]{category}{id} }
 sub category_name { $_[0]{category}{name} }
 
-sub progress      { $_[0]{pledged} / $_[0]{goal} }
-sub progress_pct  { int( $_[0]{pledged} / $_[0]{goal} * 100 ) }
-
 
 sub refetch { my $self = shift;  return $self->ks->project($self->id, @_); }
+
+sub rewards {
+   my ($self, %opts) = @_;
+   my $force = delete($opts{force});
+   return @{ $self->{rewards} } if !$force && $self->{rewards};
+   return $self->ks->project_rewards($self->id, %opts);
+}
 
 
 1;
@@ -135,6 +150,13 @@ Returns the epoch timestamp (as returned by L<C<time>|perlfunc/time>) of the pro
 Returns the number of backers the project has.
 
 
+=head2 currency
+
+   my $currency = $project->currency;
+
+Returns the currency used for this project's goal, its pledges and its rewards.
+
+
 =head2 goal
 
    my $project_goal = $project->goal;
@@ -147,36 +169,6 @@ Returns the amount the project is attempting to raise. The amount is in the curr
    my $project_pledged = $project->pledged;
 
 Returns the amount that has been pledged to the project. The amount is in the currency returned by L<C<currency>|/currency>.
-
-
-=head2 currency
-
-   my $currency = $project->currency;
-
-Returns the currency used for this project's goal, its pledges and its rewards.
-
-
-=head2 creator
-
-   my $user = $project->creator;
-
-Returns the creator of the project as an L<WWW::Kickstarter::Data::User> object.
-
-Some data will not available without a refetch.
-
-
-=head2 category_id
-
-   my $project_category_id = $project->category_id;
-
-Returns the id of the category of the project.
-
-
-=head2 category_name
-
-   my $project_category_name = $project->category_name;
-
-Returns the name of the category of the project.
 
 
 =head2 progress
@@ -193,6 +185,47 @@ Returns the progress towards the project's goal. For example, a value greater th
 Returns the progress towards the project's goal as a percent. For example, a value greater than or equal to 100 indicates the goal was reached
 
 
+=head2 creator
+
+   my $user = $project->creator;
+
+Returns the creator of the project as an L<WWW::Kickstarter::Data::User> object.
+
+Some data will not available without a refetch.
+
+
+=head2 location
+
+   my $location = $project->location;
+
+Returns the location of the project as an L<WWW::Kickstarter::Data::Location> object.
+
+
+=head2 category
+
+   my $category = $project->category;
+
+Returns the category of the project as an L<WWW::Kickstarter::Data::Category> object.
+
+
+=head2 category_id (Deprecated)
+
+   my $category_id = $project->category_id;
+
+Returns the id of the category of the project.
+
+B<Deprecated>: Use C<< $project->category->id >> instead.
+
+
+=head2 category_name (Deprecated)
+
+   my $category_name = $project->category_name;
+
+Returns the name of the category of the project.
+
+B<Deprecated>: Use C<< $project->category->name >> instead.
+
+
 =head1 API CALLS
 
 =head2 refetch
@@ -200,6 +233,22 @@ Returns the progress towards the project's goal as a percent. For example, a val
    $project = $project->refetch();
 
 Refetches this project from Kickstarter.
+
+This ensures the data is up to date, and it will populate fields that may not be provided by objects created by some API calls.
+
+
+=head2 rewards
+
+   my @rewards = $project->rewards();
+   my @rewards = $project->rewards( force => 1 );
+
+Returns the rewards of the specified project as L<WWW::Kickstarter::Data::Reward> objects.
+
+When fetching an individual project, Kickstarter includes "light" reward objects in its response.
+By default, these are the objects returned by this method.
+
+If these rewards objects are not available, or if C<< force => 1 >> is specified,
+the "full" reward objects will be fetched and returned.
 
 
 =head1 VERSION, BUGS, KNOWN ISSUES, SUPPORT, AUTHORS, COPYRIGHT & LICENSE

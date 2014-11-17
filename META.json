@@ -47,7 +47,7 @@
    "provides" : {
       "WWW::Kickstarter" : {
          "file" : "lib/WWW/Kickstarter.pm",
-         "version" : "v1.4.0"
+         "version" : "v1.6.0"
       },
       "WWW::Kickstarter::Data" : {
          "file" : "lib/WWW/Kickstarter/Data.pm",
@@ -61,12 +61,20 @@
          "file" : "lib/WWW/Kickstarter/Data/Category.pm",
          "version" : 0
       },
+      "WWW::Kickstarter::Data::Location" : {
+         "file" : "lib/WWW/Kickstarter/Data/Location.pm",
+         "version" : 0
+      },
       "WWW::Kickstarter::Data::NotificationPref" : {
          "file" : "lib/WWW/Kickstarter/Data/NotificationPref.pm",
          "version" : 0
       },
       "WWW::Kickstarter::Data::Project" : {
          "file" : "lib/WWW/Kickstarter/Data/Project.pm",
+         "version" : 0
+      },
+      "WWW::Kickstarter::Data::Reward" : {
+         "file" : "lib/WWW/Kickstarter/Data/Reward.pm",
          "version" : 0
       },
       "WWW::Kickstarter::Data::User" : {
@@ -111,5 +119,5 @@
          "url" : "http://github.com/ikegami/perl-WWW-Kickstarter"
       }
    },
-   "version" : "v1.4.0"
+   "version" : "v1.6.0"
 }
